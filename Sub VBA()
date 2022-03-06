@@ -1,0 +1,87 @@
+Sub VBA()
+'define end
+Lastrow = Cells(Rows.Count, 1).End(xlUp).Row
+
+'create current ticker
+CurrentTicker = Cells(2, 1)
+
+'define row
+Row = 2
+
+'define start value
+StartValue = Cells(2, 3)
+
+'define start
+StartPer = Cells(2, 3)
+
+
+'define startvolume
+StartVolume = Cells(2, 7)
+
+'define range start
+startrange = 2
+
+
+For i = 2 To Lastrow
+    If Cells(i, 1) <> CurrentTicker Then
+        Cells(Row, 10) = CurrentTicker
+        CurrentTicker = Cells(i, 1)
+        'Return Yearly Change
+        Cells(Row, 11) = Cells(i - 1, 6) - StartValue
+        StartValue = Cells(i, 3)
+        'Return Percent Change
+        If StartPer <> 0 Then
+            Cells(Row, 12) = (Cells(i - 1, 6) - StartPer) / StartPer
+            Cells(Row, 12).NumberFormat = "0.0%"
+            StartPer = Cells(i, 3)
+        Else:
+            Cells(Row, 12) = 0
+            Cells(Row, 12).NumberFormat = "0.0%"
+            StartPer = Cells(i, 3)
+        End If
+        'Return Stock Volume
+        Cells(Row, 13) = Application.Sum(Range(Cells(startrange, 7), Cells(i - 1, 7)))
+        startrange = i
+        'Advance Row
+        Row = Row + 1
+        
+        
+    ElseIf i = Lastrow Then
+        'Return Last Ticker
+        Cells(Row, 10) = Cells(i, 1)
+        'Return YearlyChange
+        Cells(Row, 11) = Cells(i, 6) - StartValue
+        'ReturnPercentChange
+        Cells(Row, 12) = (Cells(i - 1, 6) - StartPer) / StartPer
+        Cells(Row, 12).NumberFormat = "0.0%"
+        'ReturnStockVolume
+        Cells(Row, 13) = Application.Sum(Range(Cells(startrange, 7), Cells(i, 7)))
+        
+        
+        
+    Else
+    End If
+Next i
+
+Dim rng As Range
+Dim condition1 As FormatCondition, condition2 As FormatCondition
+
+Set rng = Range(Cells(2, 11), Cells(Row, 11))
+
+rng.FormatConditions.Delete
+
+Set condition1 = rng.FormatConditions.Add(xlCellValue, xlGreater, "=0")
+Set condition2 = rng.FormatConditions.Add(xlCellValue, xlLess, "=0")
+        
+ With condition1
+    .Interior.Color = vbGreen
+   End With
+
+   With condition2
+     .Interior.Color = vbRed
+   End With
+
+
+    
+
+End Sub
